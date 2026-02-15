@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  full-gate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: templates/b2c-subscription-next
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: templates/b2c-subscription-next/package-lock.json
+
+      - name: Ensure full-gate executable
+        run: chmod +x ../../pipelines/full-gate.sh
+
+      - name: Run Full Gate
+        run: ../../pipelines/full-gate.sh
