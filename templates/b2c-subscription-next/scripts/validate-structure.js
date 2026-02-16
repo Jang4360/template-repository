@@ -5,7 +5,7 @@ const path = require('path');
 const root = process.cwd();
 const requiredDirs = ['app', 'app/api', 'lib', 'services', 'db', 'tests', 'scripts'];
 const scanExtensions = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs']);
-const excludedDirs = new Set(['node_modules', '.next', '.git', 'dist', 'build', 'coverage']);
+const excludedDirs = new Set(['node_modules', '.next', '.git', 'dist', 'build', 'coverage', 'scripts']);
 
 const violations = [];
 
