@@ -1,9 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
+APP_DIR="${REPO_ROOT}/templates/b2c-subscription-next"
+ORIGINAL_DIR="$(pwd)"
 
-echo "[full-gate] Starting Full Gate in ${ROOT_DIR}"
+cd "${APP_DIR}"
+trap 'cd "${ORIGINAL_DIR}"' EXIT
+
+echo "[full-gate] Repo root: ${REPO_ROOT}"
+echo "[full-gate] App directory: ${APP_DIR}"
 
 if ! command -v node >/dev/null 2>&1; then
   echo "[full-gate] Error: node is not installed or not in PATH."
@@ -16,54 +23,35 @@ if ! command -v npm >/dev/null 2>&1; then
 fi
 
 if [[ ! -f package.json ]]; then
-  echo "[full-gate] Error: package.json not found in ${ROOT_DIR}."
+  echo "[full-gate] Error: package.json not found in ${APP_DIR}."
   exit 1
 fi
-
-has_script() {
-  local script_name="$1"
-  node -e "
-    const fs = require('fs');
-    const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-    process.exit(pkg.scripts && pkg.scripts['${script_name}'] ? 0 : 1);
-  "
-}
 
 echo "[full-gate] Installing dependencies"
-if [[ -f package-lock.json ]]; then
-  npm ci
-else
-  npm install
-fi
+npm ci
 
-echo "[full-gate] 1/6 lint"
+echo "[full-gate] 1/8 lint"
 npm run lint
 
-echo "[full-gate] 2/6 typecheck"
-if ! has_script "typecheck"; then
-  echo "[full-gate] Error: required script 'typecheck' is missing in package.json"
-  exit 1
-fi
+echo "[full-gate] 2/8 typecheck"
 npm run typecheck
 
-echo "[full-gate] 3/6 build"
+echo "[full-gate] 3/8 build"
 npm run build
 
-echo "[full-gate] 4/6 test"
-if ! has_script "test"; then
-  echo "[full-gate] Error: required script 'test' is missing in package.json"
-  exit 1
-fi
+echo "[full-gate] 4/8 test"
 npm run test
 
-echo "[full-gate] 5/6 validate structure"
+echo "[full-gate] 5/8 validate structure"
 npm run validate:structure
 
-echo "[full-gate] 6/6 security audit"
-if has_script "security:audit"; then
-  npm run security:audit
-else
-  npm audit --audit-level=high
-fi
+echo "[full-gate] 6/8 security audit"
+npm run security:audit
+
+echo "[full-gate] 7/8 validate skills"
+npm run validate:skills
+
+echo "[full-gate] 8/8 routes check"
+npm run routes:check
 
 echo "[full-gate] Full Gate passed"

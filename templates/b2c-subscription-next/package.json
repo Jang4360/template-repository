@@ -9,7 +9,10 @@
     "build": "next build",
     "test": "vitest run",
     "security:audit": "npm audit --audit-level=high",
-    "validate:structure": "node scripts/validate-structure.js"
+    "validate:structure": "node scripts/validate-structure.js",
+    "validate:skills": "node ../../scripts/validate-skills.mjs",
+    "routes:sync": "node scripts/sync-catalog-routes.mjs",
+    "routes:check": "node scripts/check-catalog-routes.mjs"
   },
   "dependencies": {
     "next": "^15.0.0",

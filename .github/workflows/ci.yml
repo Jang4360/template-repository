@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  push:
   pull_request:
     branches:
       - main
@@ -9,9 +10,6 @@ on:
 jobs:
   full-gate:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: templates/b2c-subscription-next
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -24,7 +22,7 @@ jobs:
           cache-dependency-path: templates/b2c-subscription-next/package-lock.json
 
       - name: Ensure full-gate executable
-        run: chmod +x ../../pipelines/full-gate.sh
+        run: chmod +x pipelines/full-gate.sh
 
       - name: Run Full Gate
-        run: ../../pipelines/full-gate.sh
+        run: ./pipelines/full-gate.sh
